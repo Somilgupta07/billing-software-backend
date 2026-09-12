@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Bill = require("../models/Bill");
 const Customer = require("../models/customer");
 const Product = require("../models/product");
-const product = require("../models/product");
 
 const round2 = (num) => Math.round((num + Number.EPSILON) * 100) / 100;
 
@@ -28,21 +27,17 @@ exports.createBill = async (req, res) => {
       });
     }
   }
-  if (discountPercen < 0 || discountPercent > 100) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Discount percent must be between 0 and 100",
-      });
+  if (discountPercent < 0 || discountPercent > 100) {
+    return res.status(400).json({
+      success: false,
+      message: "Discount percent must be between 0 and 100",
+    });
   }
   if (taxPercent < 0 || taxPercent > 100) {
-    return res
-      .status(400)
-      .json({
-        success: false,
-        message: "Tax percent must be between 0 and 100",
-      });
+    return res.status(400).json({
+      success: false,
+      message: "Tax percent must be between 0 and 100",
+    });
   }
 
   const customer = await Customer.findById(customerId).catch(() => null);
@@ -86,14 +81,12 @@ exports.createBill = async (req, res) => {
       });
     }
   } catch (err) {
-    await rollbackStock(decrementedProductIds);
+    await rollBackStock(decrementedProductIds);
     const status = err.status || 500;
-    return res
-      .status(status)
-      .json({
-        success: false,
-        message: err.message || "Failed to reserve stock",
-      });
+    return res.status(status).json({
+      success: false,
+      message: err.message || "Failed to reserve stock",
+    });
   }
 
   try {

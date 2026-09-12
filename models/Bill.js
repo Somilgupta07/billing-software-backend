@@ -26,7 +26,7 @@ const billSchema = new mongoose.Schema(
       type: [billItemSchema],
       required: true,
       validate: {
-        validator: (items) => Array.isArray(items) && items.length() > 0,
+        validator: (items) => Array.isArray(items) && items.length > 0,
         message: "A bill must contain at least one item",
       },
     },
