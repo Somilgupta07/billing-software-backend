@@ -1,0 +1,40 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: "20"
+        cache: "npm"
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check syntax of all source files
+      run: |
+        for file in $(find .-name "*.js" -not -path "./node_modules/*"); do
+          node --check "$file"
+        done
+
+  deploy:
+    needs: build-and-test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          curl -f -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}" \
+            && echo "Deploy triggered successfully" \
+            || (echo "Deploy hook failed" && exit 1)
